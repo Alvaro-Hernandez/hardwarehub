@@ -1,0 +1,78 @@
+.loginContainer {
+  display: flex;
+  height: var(--global-height);
+}
+
+.loginImage {
+  flex: 40%;
+  position: relative;
+  overflow: hidden;
+}
+
+.loginImage img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.loginContent {
+  flex: 60%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background-color: #f0f0f0;
+  padding: 20px;
+}
+
+.welcomeText {
+  font-size: 60px;
+  color: #1e1e1e;
+  margin-top: -20px;
+  margin-bottom: -0px;
+}
+
+.loginText {
+  font-size: 60px;
+  margin-bottom: 40px;
+  color: #344d9c;
+  font-weight: 600;
+}
+
+.loginForm {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+}
+
+.loginInput {
+  padding: 20px;
+  border: none;
+  background-color: #d9d9d9;
+  color: #000000;
+  border-radius: 10px;
+  margin-bottom: 30px;
+  font-family: "Outfit", sans-serif;
+  width: 44%;
+  font-size: 18px;
+}
+
+.loginInput::placeholder {
+  color: #000000;
+  font-family: "Outfit", sans-serif;
+  font-size: 18px;
+}
+
+.loginButton {
+  padding: 10px;
+  background-color: #484c52;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 30px;
+  font-family: "Outfit", sans-serif;
+  font-weight: 600;
+  width: 48%;
+}

@@ -1,0 +1,14 @@
+{
+  "usuarios": {
+    "KAbSA7y3JHa6iITG1wiAy6kYMf2": {
+      "email": "adminb4@gmail.com",
+      "role": "admin",
+      "uid": "KAbSA7y3JHa6iITG1wiAy6kYMf2"
+    },
+    "ZUXzOngkmJRF6c6xsuhh3fSL4xp2": {
+      "email": "invitadob4@gmail.com",
+      "role": "invitado",
+      "uid": "ZUXzOngkmJRF6c6xsuhh3fSL4xp2"
+    }
+  }
+}

@@ -1,0 +1,16 @@
+.splashContainer {
+  background-image: url("../assets/Splash.png");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  min-height: var(--global-height);
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+}
+
+.splashContainer .centeredContent {
+  margin-bottom: 40px;
+  font-size: 20px;
+  z-index: 2;
+}
