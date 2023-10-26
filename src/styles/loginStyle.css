@@ -7,12 +7,17 @@
   flex: 40%;
   position: relative;
   overflow: hidden;
+  background-color: #f0f0f0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 4%;
 }
 
 .loginImage img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
+  max-width: 100%;
+  max-height: 100%;
+  display: block;
 }
 
 .loginContent {
@@ -21,7 +26,7 @@
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  background-color: #f0f0f0;
+  background-color: #fff;
   padding: 20px;
 }
 
@@ -54,18 +59,18 @@
   border-radius: 10px;
   margin-bottom: 30px;
   font-family: "Outfit", sans-serif;
-  width: 44%;
-  font-size: 18px;
+  width: 48%;
+  font-size: 20px;
 }
 
 .loginInput::placeholder {
   color: #000000;
   font-family: "Outfit", sans-serif;
-  font-size: 18px;
+  font-size: 20px;
 }
 
 .loginButton {
-  padding: 10px;
+  padding: 20px;
   background-color: #484c52;
   color: white;
   border: none;
@@ -74,5 +79,48 @@
   font-size: 30px;
   font-family: "Outfit", sans-serif;
   font-weight: 600;
-  width: 48%;
+  width: 50%;
+}
+
+/* Responsive para Tablets */
+@media (max-width: 1024px) {
+  .loginImage {
+    flex: 30%;
+  }
+
+  .loginContent {
+    flex: 70%;
+  }
+
+  .welcomeText,
+  .loginText {
+    font-size: 50px;
+  }
+
+  .loginInput,
+  .loginButton {
+    width: 60%;
+  }
+}
+
+/* Responsive para Teléfonos Móviles */
+@media (max-width: 768px) {
+  .loginImage {
+    display: none;
+  }
+
+  .loginContent {
+    flex: 100%;
+    padding: 10px;
+  }
+
+  .welcomeText,
+  .loginText {
+    font-size: 40px;
+  }
+
+  .loginInput,
+  .loginButton {
+    width: 80%;
+  }
 }

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useLocation } from "wouter";
 import { auth, db } from "../services/FirebaseServices";
-import loginImg from "../assets/loginImage.png";
+import loginImg from "../assets/logoImag2.png";
 import ErrorModal from "../components/MessageErrorModalComponent";
 import '../styles/loginStyle.css';
 
@@ -43,7 +43,7 @@ const LoginScreen = () => {
     return (
         <div className="loginContainer">
             <div className="loginImage">
-                <img src={loginImg} alt="Doctors" />
+                <img src={loginImg} alt="HardwareHub" />
             </div>
             <div className="loginContent">
                 <h1 className="welcomeText">Bienvenidos</h1>
