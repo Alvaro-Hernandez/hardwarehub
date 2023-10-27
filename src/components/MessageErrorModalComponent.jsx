@@ -4,7 +4,7 @@ import "../styles/errorModalStyle.css";
 
 Modal.setAppElement('#root');
 
-function ErrorModal({ isOpen, onRequestClose, errorMessage }) {
+function ErrorModal({ isOpen, onRequestClose, errorMessage, title }) {
     return (
         <Modal
             isOpen={isOpen}
@@ -21,7 +21,7 @@ function ErrorModal({ isOpen, onRequestClose, errorMessage }) {
             }}
         >
             <div className="error-modal">
-                <h2>Error de inicio de sesión</h2>
+                <h2>{title}</h2>
                 <p>{errorMessage}</p>
                 <button onClick={onRequestClose}>Cerrar</button>
             </div>
@@ -33,6 +33,7 @@ ErrorModal.propTypes = {
     isOpen: PropTypes.bool.isRequired,
     onRequestClose: PropTypes.func.isRequired,
     errorMessage: PropTypes.string.isRequired,
+    title: PropTypes.string.isRequired,
 };
 
 export default ErrorModal;
