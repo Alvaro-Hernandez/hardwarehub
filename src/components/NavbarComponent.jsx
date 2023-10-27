@@ -37,6 +37,7 @@ const NavBarComponent = ({ onSignOut }) => {
                 isOpen={isErrorModalOpen}
                 onRequestClose={() => setErrorModalOpen(false)}
                 errorMessage={errorMsg}
+                title="Error"
             />
         </nav>
     )

@@ -67,6 +67,7 @@ const LoginScreen = () => {
                         isOpen={isErrorModalOPen}
                         errorMessage={error}
                         onRequestClose={closeErrorModal}
+                        title="Error Inicio de Sesion"
                     />
                 )}
             </div>
