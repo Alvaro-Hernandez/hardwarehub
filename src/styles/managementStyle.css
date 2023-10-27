@@ -9,6 +9,10 @@
   margin-bottom: 1rem;
 }
 
+.sidebar {
+  margin-bottom: 10px;
+}
+
 .details {
   padding: 20px;
   background-color: #d9d9d9;
@@ -91,7 +95,7 @@
   background-color: #f44336;
 }
 .btn-cancel {
-  background-color: #9e9e9e;
+  background-color: #757575;
 }
 
 /* Efecto al pasar el cursor sobre el botón */
@@ -108,6 +112,21 @@
 .actions button:disabled {
   background-color: #b0bec5;
   cursor: not-allowed;
+}
+
+/* Logica para cuando son disabled */
+.actions button:disabled i {
+  opacity: 0.6;
+}
+
+.actions button:disabled {
+  background-color: #b0bec5;
+  color: #787878;
+  cursor: not-allowed;
+}
+
+.actions button:disabled:hover {
+  filter: none;
 }
 
 @media (max-width: 1024px) {

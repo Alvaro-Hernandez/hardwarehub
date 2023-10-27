@@ -2,9 +2,9 @@ import { useState, useEffect, useRef } from "react";
 import PropTypes from "prop-types";
 import { db, storage } from "../services/FirebaseServices";
 import 'font-awesome/css/font-awesome.min.css';
+import Select from 'react-select';
 import NavBarComponent from "../components/NavbarComponent";
 import ConfirmationModal from "../components/ConfirmationModal";
-import Autocomplete from "../components/AutoCompleteComponent";
 import ErrorModal from "../components/MessageErrorModalComponent";
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -19,7 +19,9 @@ const ManagementHardwareScreen = ({ onSignOut }) => {
     const [errorMessage, setErrorMessage] = useState("");
     const [documents, setDocuments] = useState([]);
     const [selectedDocId, setSelectedDocId] = useState(null);
-
+    const [isEditable, setIsEditable] = useState(false);
+    const [isUpdating, setIsUpdating] = useState(false);
+    const [isDeleting, setIsDeleting] = useState(false);
     const fileRef = useRef(null);
     const [formData, setFormData] = useState({
         id: "",
@@ -36,6 +38,15 @@ const ManagementHardwareScreen = ({ onSignOut }) => {
         imagen: null
     });
 
+    //Estado de botones
+    const [isButtonsDisabled, setButtonsDisabled] = useState({
+        new: false,
+        edit: false,
+        delete: false,
+        save: true,
+        cancel: true
+    });
+
     //Carga de lista de documentos
     useEffect(() => {
         const fetchData = async () => {
@@ -49,15 +60,102 @@ const ManagementHardwareScreen = ({ onSignOut }) => {
 
     // Funcion para cargar el documento
     const handleDocumentClick = (document) => {
+        setIsUpdating(true);
+        setIsEditable(false);
         setSelectedDocId(document.id);
         setFormData(document);
         if (document.imagen) {
             setPreviewImage(document.imagen);
         } else {
-            setPreviewImage(null);
+            setPreviewImage(defaultImg);
+        }
+        setButtonsDisabled({
+            new: false,
+            edit: false,
+            delete: false,
+            save: true,
+            cancel: false
+        });
+    };
+
+    //Funcion para nuevo registro
+    const handleNewClick = () => {
+        setPreviewImage(defaultImg);
+        setFormData({
+            id: "",
+            anoFabricacion: "",
+            sistemaOperativo: "",
+            cpu: "",
+            actualizaciones: "",
+            softwareInstalado: "",
+            direccionIP: "",
+            usuarios: "",
+            politicas: "",
+            registroEventos: "",
+            hallazgos: "",
+            imagen: null
+        });
+        setSelectedDocId(null);
+        setIsEditable(true);
+        setButtonsDisabled({
+            new: true,
+            edit: true,
+            delete: true,
+            save: false,
+            cancel: false
+        });
+    };
+
+    //Funcion para editar
+    const handleEditClick = () => {
+        setIsEditable(true);
+        setButtonsDisabled({
+            new: true,
+            edit: true,
+            delete: true,
+            save: false,
+            cancel: false
+        });
+    };
+
+    //Funcion para eliminar un documento
+    const handleDeleteClick = () => {
+        if (selectedDocId) {
+            setIsDeleting(true);
+            setIsModalOpen(true);
+        } else {
+            setErrorMessage("Por favor, selecciona un registro para eliminar.");
+            setIsErrorModalOpen(true);
         }
     };
 
+    //Funcion para cancelar las acciones:
+    const handleCancelClick = () => {
+        setPreviewImage(defaultImg);
+        setFormData({
+            id: "",
+            anoFabricacion: "",
+            sistemaOperativo: "",
+            cpu: "",
+            actualizaciones: "",
+            softwareInstalado: "",
+            direccionIP: "",
+            usuarios: "",
+            politicas: "",
+            registroEventos: "",
+            hallazgos: "",
+            imagen: null
+        });
+        setIsEditable(false);
+        setSelectedDocId(null);
+        setButtonsDisabled({
+            new: false,
+            edit: false,
+            delete: false,
+            save: true,
+            cancel: true
+        });
+    };
 
     const handleImageChange = e => {
         const file = e.target.files[0];
@@ -78,59 +176,138 @@ const ManagementHardwareScreen = ({ onSignOut }) => {
     const handleConfirm = async () => {
         setIsModalOpen(false);
 
-        try {
+        // Si está en modo eliminación
+        if (isDeleting) {
+            try {
+                await db.collection('hardware').doc(selectedDocId).delete();
 
-            let imageURL = null;
 
-            if (formData.imagen) {
-                const imageRef = storage.ref(`images/${formData.imagen.name}`);
-                await imageRef.put(formData.imagen);
-                imageURL = await imageRef.getDownloadURL();
-            }
-
-            // Si un documento ha sido seleccionado, actualizarlo. 
-            if (selectedDocId) {
-                await db.collection('hardware').doc(selectedDocId).update({
-                    ...formData,
-                    imagen: imageURL
+                // Limpia el formulario y recarga los documentos
+                setSelectedDocId(null);
+                setFormData({
+                    id: "",
+                    anoFabricacion: "",
+                    sistemaOperativo: "",
+                    cpu: "",
+                    actualizaciones: "",
+                    softwareInstalado: "",
+                    direccionIP: "",
+                    usuarios: "",
+                    politicas: "",
+                    registroEventos: "",
+                    hallazgos: "",
+                    imagen: null
                 });
+                setPreviewImage(null);
 
-                // Si no, crear uno nuevo si el ID está presente.
-            } else if (formData.id) {
-                await db.collection('hardware').doc(formData.id).set({
-                    ...formData,
-                    imagen: imageURL
-                });
-            } else {
-                throw new Error("Por favor proporciona un ID válido para la máquina.");
+                //Cargar la lista
+                const fetchData = async () => {
+                    const snapshot = await db.collection('hardware').get();
+                    const docsArray = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                    setDocuments(docsArray);
+                };
+
+                fetchData();
+
+                toast.success("Registro eliminado exitosamente", { position: toast.POSITION.BOTTOM_RIGHT });
+
+                setIsDeleting(false);
+                setIsUpdating(false);
+
+            } catch (error) {
+                setErrorMessage(error.message);
+                setIsErrorModalOpen(true);
             }
-
-            setFormData({
-                id: "",
-                anoFabricacion: "",
-                sistemaOperativo: "",
-                cpu: "",
-                actualizaciones: "",
-                softwareInstalado: "",
-                direccionIP: "",
-                usuarios: "",
-                politicas: "",
-                registroEventos: "",
-                hallazgos: "",
-                imagen: null
-            });
-
-            setPreviewImage(null);
-
-            // Mostrar el toast de éxito
-            toast.success("Guardado Exitoso", { position: toast.POSITION.BOTTOM_RIGHT });
-
-
-
-        } catch (error) {
-            setErrorMessage(error.message);
-            setIsErrorModalOpen(true);
         }
+        // Si no está en modo eliminación (Actualización/Guardado)
+        else {
+            try {
+                let imageURL = null;
+
+                // Si una nueva imagen fue seleccionada, cargarla y obtener su URL
+                if (formData.imagen && formData.imagen instanceof File) {
+                    const imageRef = storage.ref(`images/${formData.imagen.name}`);
+                    await imageRef.put(formData.imagen);
+                    imageURL = await imageRef.getDownloadURL();
+                }
+
+                // Si un documento ha sido seleccionado, actualizarlo
+                if (selectedDocId) {
+
+                    if (imageURL) {
+                        await db.collection('hardware').doc(selectedDocId).update({
+                            ...formData,
+                            imagen: imageURL
+                        });
+                    } else {
+                        // eslint-disable-next-line no-unused-vars
+                        const { imagen, ...rest } = formData; // Excluye imagen de formData
+                        await db.collection('hardware').doc(selectedDocId).update(rest);
+                    }
+
+                    //Cargar la lista
+                    const fetchData = async () => {
+                        const snapshot = await db.collection('hardware').get();
+                        const docsArray = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                        setDocuments(docsArray);
+                    };
+
+                    fetchData();
+
+                    toast.success("Actualizado exitosamente", { position: toast.POSITION.BOTTOM_RIGHT });
+                }
+                // Si no, crear uno nuevo si el ID está presente
+                else if (formData.id) {
+                    await db.collection('hardware').doc(formData.id).set({
+                        ...formData,
+                        imagen: imageURL
+                    });
+
+                    //Cargar la lista
+                    const fetchData = async () => {
+                        const snapshot = await db.collection('hardware').get();
+                        const docsArray = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                        setDocuments(docsArray);
+                    };
+
+                    fetchData();
+
+                    toast.success("Guardado exitosamente", { position: toast.POSITION.BOTTOM_RIGHT });
+
+                } else {
+                    throw new Error("Por favor proporciona un ID válido para la máquina.");
+                }
+
+                setFormData({
+                    id: "",
+                    anoFabricacion: "",
+                    sistemaOperativo: "",
+                    cpu: "",
+                    actualizaciones: "",
+                    softwareInstalado: "",
+                    direccionIP: "",
+                    usuarios: "",
+                    politicas: "",
+                    registroEventos: "",
+                    hallazgos: "",
+                    imagen: null
+                });
+
+                setPreviewImage(null);
+
+            } catch (error) {
+                setErrorMessage(error.message);
+                setIsErrorModalOpen(true);
+            }
+        }
+
+        setButtonsDisabled({
+            new: false,
+            edit: false,
+            delete: false,
+            save: true,
+            cancel: true
+        });
     };
 
     const handleCloseModal = () => {
@@ -144,12 +321,14 @@ const ManagementHardwareScreen = ({ onSignOut }) => {
             </div>
             <div className="content-wrapper">
                 <div className="sidebar">
-                    <Autocomplete
-                        data={documents.map(doc => doc.id)}
-                        onSelect={selectedItem => {
-                            const selectedDocument = documents.find(doc => doc.id === selectedItem);
+                    <Select
+                        options={documents.map(doc => ({ value: doc.id, label: doc.id }))}
+                        value={formData.id ? { value: formData.id, label: formData.id } : null}
+                        onChange={(selectedOption) => {
+                            const selectedDocument = documents.find(doc => doc.id === selectedOption.value);
                             handleDocumentClick(selectedDocument);
                         }}
+                        placeholder="Selecciona o busca un ID"
                     />
                 </div>
                 <div className="details">
@@ -176,32 +355,32 @@ const ManagementHardwareScreen = ({ onSignOut }) => {
                                 <div className="form-column">
                                     <div className="label-input-group">
                                         <label>ID:</label>
-                                        <input type="text" value={formData.id} onChange={e => setFormData({ ...formData, id: e.target.value })} />
+                                        <input type="text" value={formData.id} onChange={e => setFormData({ ...formData, id: e.target.value })} disabled={!!selectedDocId || !isEditable} />
                                     </div>
                                     <div className="label-input-group">
                                         <label>Año de Fabricación:</label>
-                                        <input type="text" value={formData.anoFabricacion} onChange={e => setFormData({ ...formData, anoFabricacion: e.target.value })} />
+                                        <input type="text" value={formData.anoFabricacion} onChange={e => setFormData({ ...formData, anoFabricacion: e.target.value })} disabled={!isEditable} />
                                     </div>
                                     <div className="label-input-group">
                                         <label>Sistema Operativo:</label>
-                                        <input type="text" value={formData.sistemaOperativo} onChange={e => setFormData({ ...formData, sistemaOperativo: e.target.value })} />
+                                        <input type="text" value={formData.sistemaOperativo} onChange={e => setFormData({ ...formData, sistemaOperativo: e.target.value })} disabled={!isEditable} />
                                     </div>
                                 </div>
                                 {/* Columna de textarea */}
                                 <div className="form-column textarea">
                                     <label>CPU</label>
-                                    <textarea value={formData.cpu} onChange={e => setFormData({ ...formData, cpu: e.target.value })} />
+                                    <textarea value={formData.cpu} onChange={e => setFormData({ ...formData, cpu: e.target.value })} disabled={!isEditable} />
                                 </div>
                             </div>
                             <div className="form-row">
                                 <div className="form-column textarea">
                                     <label>Actualizaciones y Parches</label>
-                                    <textarea value={formData.actualizaciones} onChange={e => setFormData({ ...formData, actualizaciones: e.target.value })} />
+                                    <textarea value={formData.actualizaciones} onChange={e => setFormData({ ...formData, actualizaciones: e.target.value })} disabled={!isEditable} />
                                 </div>
                                 {/* Columna para Software Instalado */}
                                 <div className="form-column textarea">
                                     <label>Software Instalado</label>
-                                    <textarea value={formData.softwareInstalado} onChange={e => setFormData({ ...formData, softwareInstalado: e.target.value })} />
+                                    <textarea value={formData.softwareInstalado} onChange={e => setFormData({ ...formData, softwareInstalado: e.target.value })} disabled={!isEditable} />
                                 </div>
                             </div>
                             <div className="form-row">
@@ -209,15 +388,15 @@ const ManagementHardwareScreen = ({ onSignOut }) => {
                                 <div className="form-column">
                                     <div className="label-input-group">
                                         <label>Dirección IP:</label>
-                                        <input type="text" value={formData.direccionIP} onChange={e => setFormData({ ...formData, direccionIP: e.target.value })} />
+                                        <input type="text" value={formData.direccionIP} onChange={e => setFormData({ ...formData, direccionIP: e.target.value })} disabled={!isEditable} />
                                     </div>
                                     <div className="label-input-group">
                                         <label>Usuarios:</label>
-                                        <input type="text" value={formData.usuarios} onChange={e => setFormData({ ...formData, usuarios: e.target.value })} />
+                                        <input type="text" value={formData.usuarios} onChange={e => setFormData({ ...formData, usuarios: e.target.value })} disabled={!isEditable} />
                                     </div>
                                     <div className="label-input-group">
                                         <label>Políticas:</label>
-                                        <input type="text" value={formData.politicas} onChange={e => setFormData({ ...formData, politicas: e.target.value })} />
+                                        <input type="text" value={formData.politicas} onChange={e => setFormData({ ...formData, politicas: e.target.value })} disabled={!isEditable} />
                                     </div>
                                 </div>
 
@@ -225,30 +404,30 @@ const ManagementHardwareScreen = ({ onSignOut }) => {
                                 {/* Otra columna para Registro de Eventos */}
                                 <div className="form-column textarea">
                                     <label>Registros de Eventos</label>
-                                    <textarea value={formData.registroEventos} onChange={e => setFormData({ ...formData, registroEventos: e.target.value })} />
+                                    <textarea value={formData.registroEventos} onChange={e => setFormData({ ...formData, registroEventos: e.target.value })} disabled={!isEditable} />
                                 </div>
                                 {/* Otra columna para Hallazgos */}
                                 <div className="form-column textarea">
                                     <label>Hallazgos</label>
-                                    <textarea value={formData.hallazgos} onChange={e => setFormData({ ...formData, hallazgos: e.target.value })} />
+                                    <textarea value={formData.hallazgos} onChange={e => setFormData({ ...formData, hallazgos: e.target.value })} disabled={!isEditable} />
                                 </div>
                             </div>
                         </form>
                     </div>
                     <div className="actions">
-                        <button className="btn-add">
+                        <button className="btn-add" onClick={handleNewClick} disabled={isButtonsDisabled.new}>
                             <i className="fa fa-plus"></i>
                         </button>
-                        <button className="btn-edit">
+                        <button className="btn-edit" onClick={handleEditClick} disabled={isButtonsDisabled.edit}>
                             <i className="fa fa-pencil"></i>
                         </button>
-                        <button className="btn-save" onClick={handleSaveData}>
-                            <i className="fa fa-floppy-o"></i>
-                        </button>
-                        <button className="btn-delete">
+                        <button className="btn-delete" onClick={handleDeleteClick} disabled={isButtonsDisabled.delete}>
                             <i className="fa fa-trash"></i>
                         </button>
-                        <button className="btn-cancel">
+                        <button className="btn-save" onClick={handleSaveData} disabled={isButtonsDisabled.save}>
+                            <i className="fa fa-floppy-o"></i>
+                        </button>
+                        <button className="btn-cancel" onClick={handleCancelClick} disabled={isButtonsDisabled.cancel}>
                             <i className="fa fa-ban"></i>
                         </button>
                     </div>
@@ -259,8 +438,8 @@ const ManagementHardwareScreen = ({ onSignOut }) => {
                 isOpen={isModalOpen}
                 onRequestClose={handleCloseModal}
                 onConfirm={handleConfirm}
-                message="¿Estás seguro de que deseas guardar estos datos?"
-                title="Confirmar guardado"
+                message={isDeleting ? "¿Estás seguro de que deseas eliminar este registro?" : (isUpdating ? "¿Desea actualizar la información de la PC?" : "¿Estás seguro de que deseas guardar estos datos?")}
+                title={isDeleting ? "Confirmar eliminación" : (isUpdating ? "Confirmar actualización" : "Confirmar guardado")}
             />
 
             <ToastContainer />
@@ -269,7 +448,7 @@ const ManagementHardwareScreen = ({ onSignOut }) => {
                 isOpen={isErrorModalOpen}
                 onRequestClose={() => setIsErrorModalOpen(false)}
                 errorMessage={errorMessage}
-                title="Error al guardar"
+                title="Error Inesperado"
             />
         </div>
     );
