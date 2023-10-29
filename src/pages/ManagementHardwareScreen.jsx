@@ -179,6 +179,18 @@ const ManagementHardwareScreen = ({ onSignOut }) => {
         // Si está en modo eliminación
         if (isDeleting) {
             try {
+
+                //Paso 1. Para eliminar la imagen es obtener la URL de la imagen del documento
+                const docRef = await db.collection('hardware').doc(selectedDocId).get();
+                const imageUrl = docRef.data().imagen;
+
+                //Paso 2. Usar la URL para obtener la referencia a la imagen en el Storage
+                const imageRef = storage.refFromURL(imageUrl);
+
+                //Paso 3.Eliminar la imagen del Storage
+                await imageRef.delete();
+
+                // Paso 4. Eliminar el documento
                 await db.collection('hardware').doc(selectedDocId).delete();
 
 
