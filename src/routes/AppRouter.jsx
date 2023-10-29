@@ -57,7 +57,7 @@ const AppRouter = () => {
             <Route path="/login">
                 <LoginScreen onSignOut={isLoggedIn && role === "admin" ? handleSignOut : undefined} />
             </Route>
-            <Route path="/home">
+            <Route path="/guest">
                 {() => {
                     if (role === "invitado" && isLoggedIn) {
                         return <GuestScreen onSignOut={handleSignOut} />;

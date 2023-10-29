@@ -1,13 +1,16 @@
 import { useState } from "react";
 import PropTypes from "prop-types";
+import { useLocation } from "wouter";
 import ErrorModal from "./MessageErrorModalComponent";
 import logoFull from "../assets/logo.png";
 import '../styles/navStyle.css';
 
 const NavBarComponent = ({ onSignOut }) => {
     const [isErrorModalOpen, setErrorModalOpen] = useState(false);
-    const [menuOpen, setMenuOpen] = useState(false);  // Controla el estado del menú de hamburguesa.
+    const [menuOpen, setMenuOpen] = useState(false);
     const [errorMsg, setErrorMsg] = useState("");
+    const [, setLocation] = useLocation();
+
 
     const handleSignOut = () => {
         try {
@@ -22,7 +25,7 @@ const NavBarComponent = ({ onSignOut }) => {
         <nav>
             <div className="navbar">
                 <div className="logo">
-                    <img className="full-logo" src={logoFull} alt="CartiLife" />
+                    <img className="full-logo" src={logoFull} alt="CartiLife" onClick={() => setLocation("/admin")} />
                 </div>
                 <button className="menu-btn" onClick={() => setMenuOpen(!menuOpen)}>
                     ☰
@@ -37,7 +40,7 @@ const NavBarComponent = ({ onSignOut }) => {
                 isOpen={isErrorModalOpen}
                 onRequestClose={() => setErrorModalOpen(false)}
                 errorMessage={errorMsg}
-                title="Error"
+                title="Error Inesperado"
             />
         </nav>
     )
