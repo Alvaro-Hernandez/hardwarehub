@@ -354,6 +354,7 @@ const ManagementHardwareScreen = ({ onSignOut }) => {
                                         onChange={handleImageChange}
                                         ref={fileRef}
                                         style={{ display: 'none' }}
+                                        disabled={!!selectedDocId || !isEditable}
                                     />
                                     <div onClick={handleImageClick} style={{ cursor: 'pointer', width: '200px', height: '200px', borderRadius: '10px' }}>
                                         <img
