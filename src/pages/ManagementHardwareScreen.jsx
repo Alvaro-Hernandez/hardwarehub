@@ -349,13 +349,16 @@ const ManagementHardwareScreen = ({ onSignOut }) => {
       } catch (error) {
         setErrorMessage(error.message);
         setIsErrorModalOpen(true);
+      } finally{
+        setIsEditable(false);
+        setIsUpdating(false);
       }
     }
 
     setButtonsDisabled({
       new: false,
-      edit: false,
-      delete: false,
+      edit: true,
+      delete: true,
       save: true,
       cancel: true,
     });
