@@ -1,10 +1,10 @@
 import { useState } from 'react';
 import { jsPDF } from 'jspdf';
 import 'jspdf-autotable';
-import { IconButton, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Box, Collapse, Typography, Paper, Button } from '@mui/material';
 import PropTypes from 'prop-types';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
+import { IconButton, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Box, Collapse, Typography, Paper, Button } from '@mui/material';
 import defaultImg from '../assets/defautlimg.png';
 
 function Row({ row }) {
@@ -13,9 +13,9 @@ function Row({ row }) {
   // Funcion para convertir la imagen en Base64
   const convertImageToBase64 = (url, callback) => {
     const xhr = new XMLHttpRequest();
-    xhr.onload = function() {
+    xhr.onload = function () {
       const reader = new FileReader();
-      reader.onloadend = function() {
+      reader.onloadend = function () {
         callback(reader.result);
       };
       reader.readAsDataURL(xhr.response);
@@ -25,7 +25,7 @@ function Row({ row }) {
     xhr.send();
   };
 
-    //Funcion para descargar PDF
+  //Funcion para descargar PDF
   const downloadPdf = () => {
     const pdf = new jsPDF();
 
@@ -63,7 +63,7 @@ function Row({ row }) {
         <TableCell>{row.usuarios}</TableCell>
         <TableCell>{row.politicas}</TableCell>
         <TableCell>
-        <Button onClick={downloadPdf} variant="contained" size="small">Descargar PDF</Button>
+          <Button onClick={downloadPdf} variant="contained" size="small" style={{ backgroundColor: '#D15656', color: 'white' }}>Descargar PDF</Button>
         </TableCell>
       </TableRow>
       <TableRow>
@@ -72,14 +72,14 @@ function Row({ row }) {
             <Box sx={{ margin: 1 }}>
               <Typography variant="h6" gutterBottom component="div">Detalles Completos</Typography>
               <Table size="small" aria-label="details">
-              <TableBody>
-              <TableRow>
+                <TableBody>
+                  <TableRow>
                     <TableCell component="th" scope="row">Imagen</TableCell>
                     <TableCell>
-                      <img 
-                        src={row.imagen || defaultImg} 
-                        alt="Imagen del Hardware" 
-                        style={{ maxWidth: '100px' }} 
+                      <img
+                        src={row.imagen || defaultImg}
+                        alt="Imagen del Hardware"
+                        style={{ maxWidth: '100px' }}
                       />
                     </TableCell>
                   </TableRow>
@@ -131,21 +131,21 @@ function Row({ row }) {
 
 // Definición de PropTypes para Row
 Row.propTypes = {
-    row: PropTypes.shape({
-      id: PropTypes.string.isRequired,
-      anoFabricacion: PropTypes.string,
-      sistemaOperativo: PropTypes.string.isRequired,
-      cpu: PropTypes.string.isRequired,
-      actualizaciones: PropTypes.string,
-      softwareInstalado: PropTypes.string,
-      direccionIP: PropTypes.string,
-      usuarios: PropTypes.string.isRequired,
-      politicas: PropTypes.string.isRequired,
-      registroEventos: PropTypes.string,
-      hallazgos: PropTypes.string,
-      imagen: PropTypes.any,
-    }).isRequired
-  };
+  row: PropTypes.shape({
+    id: PropTypes.string.isRequired,
+    anoFabricacion: PropTypes.string,
+    sistemaOperativo: PropTypes.string.isRequired,
+    cpu: PropTypes.string.isRequired,
+    actualizaciones: PropTypes.string,
+    softwareInstalado: PropTypes.string,
+    direccionIP: PropTypes.string,
+    usuarios: PropTypes.string.isRequired,
+    politicas: PropTypes.string.isRequired,
+    registroEventos: PropTypes.string,
+    hallazgos: PropTypes.string,
+    imagen: PropTypes.any,
+  }).isRequired
+};
 
 export function CollapsibleTable({ rows }) {
   return (
@@ -159,6 +159,7 @@ export function CollapsibleTable({ rows }) {
             <TableCell>CPU</TableCell>
             <TableCell>Usuarios</TableCell>
             <TableCell>Políticas</TableCell>
+            <TableCell>PDF</TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
@@ -171,6 +172,7 @@ export function CollapsibleTable({ rows }) {
   );
 }
 
+// Definición de PropTypes para CollapsibleTable
 CollapsibleTable.propTypes = {
   rows: PropTypes.arrayOf(PropTypes.object).isRequired
 };
