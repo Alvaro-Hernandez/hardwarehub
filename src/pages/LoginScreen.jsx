@@ -12,7 +12,21 @@ const LoginScreen = () => {
     const [, setLocation] = useLocation();
     const [isErrorModalOPen, setIsErrorModalOpen] = useState(false);
 
-    // Acceso Login
+    // Funcion para el manejo de errores
+    const getErrorMessage = (errorCode) =>{
+        switch (errorCode) {
+            case 'auth/user-not-found':
+                return 'El usuario no existe, Por favor, verifica tus credenciales';
+            case 'auth/wrong-password':
+                return 'La contraseña es incorrecta. Por favor, intenta de nuevo.';
+            case 'auth/invalid-email':
+                return 'El correo electrónico no es válido. Por favor, introduce un correo electrónico válido.';
+            default:
+                return 'Ocurrio un error inesperado. Por favor, intenta de nuevo.';
+        }
+    }
+
+    // Funcion para el maanejo de acceso
     const handleLogin = async (e) => {
         e.preventDefault();
 
@@ -31,11 +45,13 @@ const LoginScreen = () => {
                 setLocation("/home")
             }
         } catch (error) {
-            setError(error.message);
+            const customErrorMessage = getErrorMessage(error.code);
+            setError(customErrorMessage);
             setIsErrorModalOpen(true);
         }
     };
 
+    //Funcion para el cierre del modal de error
     const closeErrorModal = () => {
         setIsErrorModalOpen(false);
     }
