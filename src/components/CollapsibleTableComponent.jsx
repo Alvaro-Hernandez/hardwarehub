@@ -4,8 +4,9 @@ import 'jspdf-autotable';
 import PropTypes from 'prop-types';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
-import { IconButton, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Box, Collapse, Typography, Paper, Button } from '@mui/material';
+import { IconButton, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Box, Collapse, Typography, Paper, Button,TextField } from '@mui/material';
 import defaultImg from '../assets/defautlimg.png';
+import portada from '../assets/portada.png';
 
 function Row({ row }) {
   const [open, setOpen] = useState(false);
@@ -25,30 +26,73 @@ function Row({ row }) {
     xhr.send();
   };
 
-  //Funcion para descargar PDF
+
+  // Generar PDF por pc
   const downloadPdf = () => {
-    const pdf = new jsPDF();
-
-    // Define la imagen que se va a utilizar
-    const imageUrl = row.imagen || defaultImg;
-
-    convertImageToBase64(imageUrl, (base64Img) => {
-      // Agrega la imagen al PDF
-      pdf.addImage(base64Img, 'PNG', 10, 10, 50, 50); // Ajusta las coordenadas y el tamaño según necesites
-
-      // Agrega la tabla de datos
-      pdf.text('Detalles del Hardware', 10, 70); // Ajusta la posición del texto según necesites
-      pdf.autoTable({
-        startY: 80, // Asegúrate de que la tabla comience debajo de la imagen
-        head: [['ID', 'Año de Fabricación', 'Sistema Operativo', 'CPU', 'Actualizaciones', 'Software Instalado', 'Dirección IP', 'Usuarios', 'Políticas', 'Registro de Eventos', 'Hallazgos']],
-        body: [
-          [row.id, row.anoFabricacion, row.sistemaOperativo, row.cpu, row.actualizaciones, row.softwareInstalado, row.direccionIP, row.usuarios, row.politicas, row.registroEventos, row.hallazgos]
-        ],
+    const pdf = new jsPDF({ orientation: 'portrait' });
+  
+    const loadImage = (url) => {
+      return new Promise((resolve, reject) => {
+        const img = new Image();
+        img.onload = () => resolve(img);
+        img.onerror = reject;
+        img.src = url;
       });
+    };
+  
+    loadImage(portada)
+      .then((backgroundImage) => {
+        pdf.addImage(backgroundImage, 'PNG', 0, 0, pdf.internal.pageSize.width, pdf.internal.pageSize.height);
+        pdf.setFont('times', 'roman');
+        pdf.setTextColor(0, 0, 0);
+        pdf.setFontSize(20);
+        pdf.text('Usuario de Reporte: Admin', 50, 70);
+        const currentDate = new Date();
+        const formattedDate = `${currentDate.getDate()}/${currentDate.getMonth() + 1}/${currentDate.getFullYear()}`;
+        pdf.text(`Fecha de Reporte: ${formattedDate}`, 50, 90);
+        pdf.addPage();
+  
+        const imageUrl = row.imagen || defaultImg;
+  
+        convertImageToBase64(imageUrl, (base64Img) => {
+          pdf.addImage(base64Img, 'PNG', 20, 15, 50, 50);
+          pdf.setFontSize(14);
+          pdf.text('Información Detallada Del Equipo Seleccionado Con Su Respectivo Hallazgo', 20, 70);
+          pdf.setTextColor(0, 0, 0);
+          // Dividir la tabla en dos partes con 5 columnas cada una
+        pdf.autoTable({
+          startY: 80,
+          head: [['ID', 'Año de Fabricación', 'Sistema Operativo', 'CPU', 'Actualizaciones']],
+          body: [
+            [row.id, row.anoFabricacion, row.sistemaOperativo, row.cpu, row.actualizaciones],
+          ],
+        });
 
-      pdf.save(`${row.id}.pdf`);
-    });
-  }
+        pdf.autoTable({
+          startY: pdf.previousAutoTable.finalY + 10, // Iniciar la segunda parte debajo de la primera
+          head: [['Software Instalado', 'Dirección IP', 'Usuarios', 'Políticas', 'Registro de Eventos']],
+          body: [
+            [row.softwareInstalado, row.direccionIP, row.usuarios, row.politicas, row.registroEventos],
+          ],
+        });
+        
+          pdf.autoTable({  
+            startY: 140,
+            head: [['HALLAZGO']],
+            body : [
+              [ row.hallazgos]
+            ],
+           });
+  
+          pdf.save(`${row.id}.pdf`);
+        });
+      })
+      .catch((error) => {
+        console.error('Error loading background image:', error);
+      });
+  };
+  
+
   return (
     <>
       <TableRow sx={{ '& > *': { borderBottom: 'unset' } }}>
@@ -148,30 +192,127 @@ Row.propTypes = {
 };
 
 export function CollapsibleTable({ rows }) {
+  const [filter, setFilter] = useState('');
+
+  const filteredRows = rows.filter(row =>
+    row.sistemaOperativo.toLowerCase().includes(filter.toLowerCase()) ||
+    row.cpu.toLowerCase().includes(filter.toLowerCase()) ||
+    row.id.toLowerCase().includes(filter.toLowerCase())  // Agrega el campo 'id' al filtro
+  );
+  const handleFilterChange = (event) => {
+    setFilter(event.target.value);
+  };
+
+// Descargar todos los equipos en pdf
+  const downloadAllPdf = () => {
+    const pdf = new jsPDF({ orientation: 'portrait' });
+
+    const loadImage = (url) => {
+      return new Promise((resolve, reject) => {
+        const img = new Image();
+        img.onload = () => resolve(img);
+        img.onerror = reject;
+        img.src = url;
+      });
+    };
+
+    loadImage(portada)
+      .then((backgroundImage) => {
+        // Agregar la imagen de fondo solo en la primera página (portada)
+        pdf.addImage(backgroundImage, 'PNG', 0, 0, pdf.internal.pageSize.width, pdf.internal.pageSize.height);
+        pdf.setFont('times', 'roman');
+        pdf.setTextColor(0, 0, 0);
+        pdf.setFontSize(20);
+        pdf.text('Usuario de Reporte: Admin', 50, 70);
+        const currentDate = new Date();
+        const formattedDate = `${currentDate.getDate()}/${currentDate.getMonth() + 1}/${currentDate.getFullYear()}`;
+        pdf.text(`Fecha de Reporte: ${formattedDate}`, 50, 90);
+
+        // Resto de la lógica para cada página, similar a downloadPdf
+        filteredRows.forEach((row) => {
+          pdf.addPage();
+
+          pdf.setFont('times', 'roman');
+          pdf.setTextColor(0, 0, 0);
+          pdf.setFontSize(14);
+          pdf.text('Información Detallada Del Equipo', 10, 15);
+          pdf.setTextColor(0, 0, 0);
+          pdf.autoTable({
+            startY: 20,
+            head: [['ID', 'Año de Fabricación', 'Sistema Operativo', 'CPU', 'Actualizaciones']],
+            body: [
+              [row.id, row.anoFabricacion, row.sistemaOperativo, row.cpu, row.actualizaciones],
+            ],
+          });
+
+          pdf.autoTable({
+            startY: pdf.previousAutoTable.finalY + 10,
+            head: [['Software Instalado', 'Dirección IP', 'Usuarios', 'Políticas', 'Registro de Eventos']],
+            body: [
+              [row.softwareInstalado, row.direccionIP, row.usuarios, row.politicas, row.registroEventos],
+            ],
+          });
+
+          pdf.autoTable({
+            startY: pdf.previousAutoTable.finalY + 10,
+            head: [['HALLAZGO']],
+            body: [
+              [row.hallazgos]
+            ],
+          });
+        });
+
+        pdf.save('todos_los_equipos.pdf');
+      })
+      .catch((error) => {
+        console.error('Error loading background image:', error);
+      });
+  };
+
+
   return (
-    <TableContainer component={Paper}>
-      <Table aria-label="collapsible table">
-        <TableHead>
-          <TableRow>
-            <TableCell />
-            <TableCell>ID</TableCell>
-            <TableCell>Sistema Operativo</TableCell>
-            <TableCell>CPU</TableCell>
-            <TableCell>Usuarios</TableCell>
-            <TableCell>Políticas</TableCell>
-            <TableCell>PDF</TableCell>
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {rows.map((row) => (
-            <Row key={row.id} row={row} />
-          ))}
-        </TableBody>
-      </Table>
-    </TableContainer>
+    <div>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column' }}>
+        <TextField
+          type="text"
+          placeholder="Buscar por PC"
+          value={filter}
+          onChange={handleFilterChange}
+          style={{ margin: '20px', width: '80%', maxWidth: '300px' }}
+        />
+        <Button
+          onClick={downloadAllPdf}
+          variant="contained"
+          size="small"
+          style={{ backgroundColor: '#D15656', color: 'white', marginTop: '10px' }}
+        >
+          Descargar Todos
+        </Button>
+      </div>
+
+      <TableContainer component={Paper}>
+        <Table aria-label="collapsible table">
+          <TableHead>
+            <TableRow>
+              <TableCell />
+              <TableCell>ID</TableCell>
+              <TableCell>Sistema Operativo</TableCell>
+              <TableCell>CPU</TableCell>
+              <TableCell>Usuarios</TableCell>
+              <TableCell>Políticas</TableCell>
+              <TableCell>PDF</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {filteredRows.map((row) => (
+              <Row key={row.id} row={row} />
+            ))}
+          </TableBody>
+        </Table>
+      </TableContainer>
+    </div>
   );
 }
-
 // Definición de PropTypes para CollapsibleTable
 CollapsibleTable.propTypes = {
   rows: PropTypes.arrayOf(PropTypes.object).isRequired
