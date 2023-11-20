@@ -447,7 +447,7 @@ const ManagementHardwareScreen = ({ onSignOut }) => {
                   <div className="label-input-group">
                     <label>Año de Fabricación:</label>
                     <input
-                      type="text"
+                      type="number"
                       value={formData.anoFabricacion}
                       onChange={(e) =>
                         setFormData({

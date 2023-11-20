@@ -65,6 +65,7 @@ function Row({ row }) {
         pdf.setTextColor(0, 0, 0);
         pdf.setFontSize(20);
         pdf.text('Usuario de Reporte: Admin', 50, 70);
+        pdf.text('Firma:_____________________', 50, 230);
         const currentDate = new Date();
         const formattedDate = `${currentDate.getDate()}/${currentDate.getMonth() + 1}/${currentDate.getFullYear()}`;
         pdf.text(`Fecha de Reporte: ${formattedDate}`, 50, 90);
@@ -96,9 +97,9 @@ function Row({ row }) {
 
           pdf.autoTable({
             startY: 140,
-            head: [['HALLAZGO']],
+            head: [['HALLAZGO', 'SOLUCION']],
             body: [
-              [row.hallazgos]
+              [row.hallazgos,row.solucion]
             ],
           });
 
@@ -222,7 +223,8 @@ export function CollapsibleTable({ rows }) {
   const filteredRows = rows.filter(row =>
     row.sistemaOperativo.toLowerCase().includes(filter.toLowerCase()) ||
     row.cpu.toLowerCase().includes(filter.toLowerCase()) ||
-    row.id.toLowerCase().includes(filter.toLowerCase())  // Agrega el campo 'id' al filtro
+    row.id.toLowerCase().includes(filter.toLowerCase())
+      // Agrega el campo 'id' al filtro
   );
   const handleFilterChange = (event) => {
     setFilter(event.target.value);
@@ -249,6 +251,7 @@ export function CollapsibleTable({ rows }) {
         pdf.setTextColor(0, 0, 0);
         pdf.setFontSize(20);
         pdf.text('Usuario de Reporte: Admin', 50, 70);
+        pdf.text('Firma:_____________________', 50, 230);
         const currentDate = new Date();
         const formattedDate = `${currentDate.getDate()}/${currentDate.getMonth() + 1}/${currentDate.getFullYear()}`;
         pdf.text(`Fecha de Reporte: ${formattedDate}`, 50, 90);
@@ -279,10 +282,10 @@ export function CollapsibleTable({ rows }) {
           });
 
           pdf.autoTable({
-            startY: pdf.previousAutoTable.finalY + 10,
-            head: [['HALLAZGO']],
+            startY: 140,
+            head: [['HALLAZGO', 'SOLUCION']],
             body: [
-              [row.hallazgos]
+              [row.hallazgos,row.solucion]
             ],
           });
         });
