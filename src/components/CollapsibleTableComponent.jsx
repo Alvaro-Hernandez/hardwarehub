@@ -4,7 +4,7 @@ import 'jspdf-autotable';
 import PropTypes from 'prop-types';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
-import { IconButton, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Box, Collapse, Typography, Paper, Button,TextField } from '@mui/material';
+import { IconButton, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Box, Collapse, Typography, Paper, Button, TextField } from '@mui/material';
 import defaultImg from '../assets/defautlimg.png';
 import portada from '../assets/portada.png';
 
@@ -30,7 +30,7 @@ function Row({ row }) {
   // Generar PDF por pc
   const downloadPdf = () => {
     const pdf = new jsPDF({ orientation: 'portrait' });
-  
+
     const loadImage = (url) => {
       return new Promise((resolve, reject) => {
         const img = new Image();
@@ -39,7 +39,7 @@ function Row({ row }) {
         img.src = url;
       });
     };
-  
+
     loadImage(portada)
       .then((backgroundImage) => {
         pdf.addImage(backgroundImage, 'PNG', 0, 0, pdf.internal.pageSize.width, pdf.internal.pageSize.height);
@@ -51,39 +51,39 @@ function Row({ row }) {
         const formattedDate = `${currentDate.getDate()}/${currentDate.getMonth() + 1}/${currentDate.getFullYear()}`;
         pdf.text(`Fecha de Reporte: ${formattedDate}`, 50, 90);
         pdf.addPage();
-  
+
         const imageUrl = row.imagen || defaultImg;
-  
+
         convertImageToBase64(imageUrl, (base64Img) => {
           pdf.addImage(base64Img, 'PNG', 20, 15, 50, 50);
           pdf.setFontSize(14);
           pdf.text('Información Detallada Del Equipo Seleccionado Con Su Respectivo Hallazgo', 20, 70);
           pdf.setTextColor(0, 0, 0);
           // Dividir la tabla en dos partes con 5 columnas cada una
-        pdf.autoTable({
-          startY: 80,
-          head: [['ID', 'Año de Fabricación', 'Sistema Operativo', 'CPU', 'Actualizaciones']],
-          body: [
-            [row.id, row.anoFabricacion, row.sistemaOperativo, row.cpu, row.actualizaciones],
-          ],
-        });
+          pdf.autoTable({
+            startY: 80,
+            head: [['ID', 'Año de Fabricación', 'Sistema Operativo', 'CPU', 'Actualizaciones']],
+            body: [
+              [row.id, row.anoFabricacion, row.sistemaOperativo, row.cpu, row.actualizaciones],
+            ],
+          });
 
-        pdf.autoTable({
-          startY: pdf.previousAutoTable.finalY + 10, // Iniciar la segunda parte debajo de la primera
-          head: [['Software Instalado', 'Dirección IP', 'Usuarios', 'Políticas', 'Registro de Eventos']],
-          body: [
-            [row.softwareInstalado, row.direccionIP, row.usuarios, row.politicas, row.registroEventos],
-          ],
-        });
-        
-          pdf.autoTable({  
+          pdf.autoTable({
+            startY: pdf.previousAutoTable.finalY + 10, // Iniciar la segunda parte debajo de la primera
+            head: [['Software Instalado', 'Dirección IP', 'Usuarios', 'Políticas', 'Registro de Eventos']],
+            body: [
+              [row.softwareInstalado, row.direccionIP, row.usuarios, row.politicas, row.registroEventos],
+            ],
+          });
+
+          pdf.autoTable({
             startY: 140,
             head: [['HALLAZGO']],
-            body : [
-              [ row.hallazgos]
+            body: [
+              [row.hallazgos]
             ],
-           });
-  
+          });
+
           pdf.save(`${row.id}.pdf`);
         });
       })
@@ -91,7 +91,7 @@ function Row({ row }) {
         console.error('Error loading background image:', error);
       });
   };
-  
+
 
   return (
     <>
@@ -163,6 +163,10 @@ function Row({ row }) {
                     <TableCell component="th" scope="row">Hallazgos</TableCell>
                     <TableCell>{row.hallazgos}</TableCell>
                   </TableRow>
+                  <TableRow>
+                    <TableCell component="th" scope="row">Solucion</TableCell>
+                    <TableCell>{row.solucion}</TableCell>
+                  </TableRow>
                 </TableBody>
               </Table>
             </Box>
@@ -187,6 +191,7 @@ Row.propTypes = {
     politicas: PropTypes.string.isRequired,
     registroEventos: PropTypes.string,
     hallazgos: PropTypes.string,
+    solucion: PropTypes.string,
     imagen: PropTypes.any,
   }).isRequired
 };
@@ -203,7 +208,7 @@ export function CollapsibleTable({ rows }) {
     setFilter(event.target.value);
   };
 
-// Descargar todos los equipos en pdf
+  // Descargar todos los equipos en pdf
   const downloadAllPdf = () => {
     const pdf = new jsPDF({ orientation: 'portrait' });
 
@@ -313,6 +318,7 @@ export function CollapsibleTable({ rows }) {
     </div>
   );
 }
+
 // Definición de PropTypes para CollapsibleTable
 CollapsibleTable.propTypes = {
   rows: PropTypes.arrayOf(PropTypes.object).isRequired
