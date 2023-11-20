@@ -32,11 +32,12 @@ const ManagementHardwareScreen = ({ onSignOut }) => {
     actualizaciones: "",
     softwareInstalado: "",
     direccionIP: "",
-    usuarios: "",
+    usuarios: 0,
     politicas: "",
     registroEventos: "",
     hallazgos: "",
     imagen: null,
+    solucion: "",
   });
 
   //Estado de botones
@@ -93,11 +94,12 @@ const ManagementHardwareScreen = ({ onSignOut }) => {
       actualizaciones: "",
       softwareInstalado: "",
       direccionIP: "",
-      usuarios: "",
+      usuarios: 0,
       politicas: "",
       registroEventos: "",
       hallazgos: "",
       imagen: null,
+      solucion: "",
     });
     setSelectedDocId(null);
     setIsEditable(true);
@@ -144,11 +146,12 @@ const ManagementHardwareScreen = ({ onSignOut }) => {
       actualizaciones: "",
       softwareInstalado: "",
       direccionIP: "",
-      usuarios: "",
+      usuarios: 0,
       politicas: "",
       registroEventos: "",
       hallazgos: "",
       imagen: null,
+      solucion: "",
     });
     setIsEditable(false);
     setIsUpdating(false);
@@ -223,11 +226,12 @@ const ManagementHardwareScreen = ({ onSignOut }) => {
           actualizaciones: "",
           softwareInstalado: "",
           direccionIP: "",
-          usuarios: "",
+          usuarios: 0,
           politicas: "",
           registroEventos: "",
           hallazgos: "",
           imagen: null,
+          solucion: "",
         });
 
         //Cargar la lista
@@ -340,16 +344,17 @@ const ManagementHardwareScreen = ({ onSignOut }) => {
           actualizaciones: "",
           softwareInstalado: "",
           direccionIP: "",
-          usuarios: "",
+          usuarios: 0,
           politicas: "",
           registroEventos: "",
           hallazgos: "",
           imagen: null,
+          solucion: "",
         });
       } catch (error) {
         setErrorMessage(error.message);
         setIsErrorModalOpen(true);
-      } finally{
+      } finally {
         setIsEditable(false);
         setIsUpdating(false);
       }
@@ -573,7 +578,7 @@ const ManagementHardwareScreen = ({ onSignOut }) => {
                   <div className="label-input-group">
                     <label>Usuarios:</label>
                     <input
-                      type="text"
+                      type="number"
                       value={formData.usuarios}
                       onChange={(e) =>
                         setFormData({ ...formData, usuarios: e.target.value })
@@ -645,6 +650,23 @@ const ManagementHardwareScreen = ({ onSignOut }) => {
                     </span>
                   )}
                 </div>
+                {/* Otra columna para Solucion */}
+                <div className="form-column textarea">
+                  <label>Solución</label>
+                  <textarea
+                    value={formData.solucion}
+                    onChange={(e) =>
+                      setFormData({ ...formData, solucion: e.target.value })
+                    }
+                    disabled={!isEditable}
+                    className={formErrors.solucion ? "textarea-error" : ""}
+                  />
+                  {formErrors.solucion && (
+                    <span className="error-message">
+                      {formErrors.solucion}
+                    </span>
+                  )}
+                </div>
               </div>
             </form>
           </div>
@@ -696,15 +718,15 @@ const ManagementHardwareScreen = ({ onSignOut }) => {
           isDeleting
             ? "¿Estás seguro de que deseas eliminar este registro?"
             : isUpdating
-            ? "¿Desea actualizar la información de la PC?"
-            : "¿Estás seguro de que deseas guardar estos datos?"
+              ? "¿Desea actualizar la información de la PC?"
+              : "¿Estás seguro de que deseas guardar estos datos?"
         }
         title={
           isDeleting
             ? "Confirmar eliminación"
             : isUpdating
-            ? "Confirmar actualización"
-            : "Confirmar guardado"
+              ? "Confirmar actualización"
+              : "Confirmar guardado"
         }
       />
 
