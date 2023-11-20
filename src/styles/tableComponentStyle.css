@@ -1,0 +1,19 @@
+.table-container {
+  width: 100%;
+  overflow-x: auto;
+}
+
+/* Estilos para pantallas pequeñas */
+@media screen and (max-width: 768px) {
+  .table-container .MuiTableCell-root {
+    padding: 8px;
+  }
+
+  .table-container .MuiTable-root {
+    min-width: 600px;
+  }
+
+  .hide-on-mobile {
+    display: none;
+  }
+}

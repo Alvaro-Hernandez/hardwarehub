@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { jsPDF } from 'jspdf';
 import 'jspdf-autotable';
 import PropTypes from 'prop-types';
@@ -8,7 +8,25 @@ import { IconButton, Table, TableBody, TableCell, TableContainer, TableHead, Tab
 import defaultImg from '../assets/defautlimg.png';
 import portada from '../assets/portada.png';
 
+
+function useWindowSize() {
+  const [size, setSize] = useState({ width: window.innerWidth, height: window.innerHeight });
+
+  useEffect(() => {
+    const handleResize = () => {
+      setSize({ width: window.innerWidth, height: window.innerHeight });
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  return size;
+}
+
 function Row({ row }) {
+  const { width } = useWindowSize();
+  const isMobile = width < 768;
   const [open, setOpen] = useState(false);
 
   // Funcion para convertir la imagen en Base64
@@ -102,10 +120,10 @@ function Row({ row }) {
           </IconButton>
         </TableCell>
         <TableCell component="th" scope="row">{row.id}</TableCell>
-        <TableCell>{row.sistemaOperativo}</TableCell>
+        {!isMobile && <TableCell>{row.sistemaOperativo}</TableCell>}
         <TableCell>{row.cpu}</TableCell>
-        <TableCell>{row.usuarios}</TableCell>
-        <TableCell>{row.politicas}</TableCell>
+        {!isMobile && <TableCell>{row.usuarios}</TableCell>}
+        {!isMobile && <TableCell>{row.politicas}</TableCell>}
         <TableCell>
           <Button onClick={downloadPdf} variant="contained" size="small" style={{ backgroundColor: '#D15656', color: 'white' }}>Descargar PDF</Button>
         </TableCell>
@@ -197,6 +215,8 @@ Row.propTypes = {
 };
 
 export function CollapsibleTable({ rows }) {
+  const { width } = useWindowSize();
+  const isMobile = width < 768;
   const [filter, setFilter] = useState('');
 
   const filteredRows = rows.filter(row =>
@@ -295,16 +315,16 @@ export function CollapsibleTable({ rows }) {
         </Button>
       </div>
 
-      <TableContainer component={Paper}>
+      <TableContainer component={Paper} className='table-container'>
         <Table aria-label="collapsible table">
           <TableHead>
             <TableRow>
               <TableCell />
               <TableCell>ID</TableCell>
-              <TableCell>Sistema Operativo</TableCell>
+              {!isMobile && <TableCell>Sistema Operativo</TableCell>}
               <TableCell>CPU</TableCell>
-              <TableCell>Usuarios</TableCell>
-              <TableCell>Políticas</TableCell>
+              {!isMobile && <TableCell>Usuarios</TableCell>}
+              {!isMobile && <TableCell>Políticas</TableCell>}
               <TableCell>PDF</TableCell>
             </TableRow>
           </TableHead>
