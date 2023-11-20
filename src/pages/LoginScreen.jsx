@@ -13,7 +13,7 @@ const LoginScreen = () => {
     const [isErrorModalOPen, setIsErrorModalOpen] = useState(false);
 
     // Funcion para el manejo de errores
-    const getErrorMessage = (errorCode) =>{
+    const getErrorMessage = (errorCode) => {
         switch (errorCode) {
             case 'auth/user-not-found':
                 return 'El usuario no existe, Por favor, verifica tus credenciales';
@@ -42,7 +42,7 @@ const LoginScreen = () => {
             if (userData.role === 'admin') {
                 setLocation("/admin");
             } else if (userData.role === 'invitado') {
-                setLocation("/home")
+                setLocation("/guest")
             }
         } catch (error) {
             const customErrorMessage = getErrorMessage(error.code);
