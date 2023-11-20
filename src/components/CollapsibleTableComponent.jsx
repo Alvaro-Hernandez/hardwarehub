@@ -70,7 +70,7 @@ function Row({ row }) {
         pdf.text(`Fecha de Reporte: ${formattedDate}`, 50, 90);
         pdf.addPage();
 
-        const imageUrl = row.imagen || defaultImg;
+        const imageUrl = defaultImg;
 
         convertImageToBase64(imageUrl, (base64Img) => {
           pdf.addImage(base64Img, 'PNG', 20, 15, 50, 50);
